@@ -1,6 +1,6 @@
 #include<iostream>
-#include <stdlib.h> // niezbędne dla funkcji srand i rand
-#include <time.h> // niezbędne dla funkcji time
+#include <stdlib.h>
+#include <time.h>
 #include <cmath>
 #include <bitset>
 #include <stdio.h>
@@ -9,15 +9,14 @@
 
 using namespace std;
 
-string toBinary(int n, int lenBits)
+void toBinary(int n, int lenBits, string &binary)
 {
-    string binary;
+    binary = "";
     while (n != 0){
-        binary += ( n % 2 == 0 ? "0" : "1" );
+        binary += ( n % 2 == 0 ? '0' : '1' );
         n /= 2;
     }
     binary.insert(0, lenBits - binary.size(), '0');
-    return binary;
 }
 
 int difference(string combination, int set[])
@@ -49,37 +48,32 @@ int main(int argc, char *argv[])
     }
     
     int diff;
-    string combinations;
-
-    string winSet =  toBinary(0, n);
+    string combinations = "";
+    string winSet = "";
+    toBinary(0, n, winSet);
     int min = difference(winSet, set);
-
-    string localWinSet = winSet;
-    int localMin = min;
-
-    #pragma omp parallel private(combinations, diff, localWinSet, localMin) shared(min, winSet)  num_threads(4)
+    #pragma omp parallel private(diff, combinations) shared(min, winSet)  num_threads(4)
     {
+        string localWinSet = winSet;
+        int localMin = min;
         #pragma omp for schedule(dynamic)
-        for(int i=1; i<lenBits; i++){
-            combinations = toBinary(i, n);
+        for(int i=0; i<lenBits; i++){
+            toBinary(i, n, combinations);
             diff = difference(combinations, set);
-              if (diff < min) {
+              if (diff < localMin && combinations.length() > 0) {
                 localMin = diff;
                 localWinSet = combinations;
             }
         }
         
-        #pragma omp critical
+        #pragma omp critical       
         {
           if (localMin < min) {  
-            
-            min = localMin;
-            winSet = localWinSet;
+              min = localMin;
+              winSet = localWinSet;
           }
         }
     }
-
-
-    
-    cout<<"\nWinset "<<winSet<<" min "<<min<<endl;
+    cout<<endl<<endl<<"Podzial zbioru na dwa przedstawiony w postaci liczby binarnej: "<<endl;
+    cout<<winSet<<endl<<"Roznica sum zbiorow: "<<endl<<min<<endl;
 }
