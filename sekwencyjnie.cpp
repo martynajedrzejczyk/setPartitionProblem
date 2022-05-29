@@ -8,15 +8,26 @@
 
 using namespace std;
 
-string toBinary(int n, int lenBits)
+// string toBinary(int n, int lenBits)
+// {
+//     string binary;
+//     while (n != 0){
+//         binary += ( n % 2 == 0 ? "0" : "1" );
+//         n /= 2;
+//     }
+//     binary.insert(0, lenBits - binary.size(), '0');
+//     return binary;
+// }
+
+void toBinary(int n, int lenBits, string &binary)
 {
-    string binary;
+    binary = "";
     while (n != 0){
-        binary += ( n % 2 == 0 ? "0" : "1" );
+        binary += ( n % 2 == 0 ? '0' : '1' );
         n /= 2;
     }
     binary.insert(0, lenBits - binary.size(), '0');
-    return binary;
+    // return binary;
 }
 
 int difference(string combination, int set[])
@@ -40,23 +51,22 @@ int main(int argc, char *argv[])
     int maxNumber = atoi(argv[2]);
     int* set = new int[n];
     unsigned int lenBits = pow(2, double(n));
-    string* binaries = new string[lenBits];
     srand(time(NULL));
     cout<<"Wylosowany zbior: "<<endl;
     for(int i = 0; i < n; i++){
         set[i] = rand() % (maxNumber+1);
-        // printf("%d ", set[i]);
         cout<<set[i]<<" ";
     }
     
     int diff;
     string combinations;
-
-    string winSet =  toBinary(0, n);
+    string winSet;
+      toBinary(0, n, winSet);
     int min = difference(winSet, set);
 
     for(int i=0; i<lenBits; i++){
-        string combinations = toBinary(i, n);
+        string combinations ;
+          toBinary(i, n, combinations);
         diff = difference(combinations, set);
         if (diff < min) {
           min = diff;
